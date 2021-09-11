@@ -3,7 +3,19 @@ import re
 import json
 from bs4 import BeautifulSoup
 import pandas as pd
+import time
 from pprint import pprint
+
+TEST_URL_1 = "https://steamcommunity.com/market/listings/440/Strange%20Specialized%20Killstreak%20Phlogistinator"
+TEST_URL_2 = "https://steamcommunity.com/market/listings/440/Strange%20Rocket%20Launcher"
+TEST_URL_3 = "https://steamcommunity.com/market/listings/440/Strange%20Crusader%27s%20Crossbow"
+HALLOWEEN_SPELL_QUERY_STRING = "?filter=halloween+spell"
+
+
+def generate_spelled_items_urls():
+    df = pd.read_csv("spelled_item_urls.csv", sep=',', header=0)
+    # print(df["Item URL"])
+    return df["Item URL"]
 
 
 def generate_spelled_listing_data(item_data_script):
@@ -11,7 +23,7 @@ def generate_spelled_listing_data(item_data_script):
     returned_dictionary = re.findall("{.*};", str(returned_dictionary))[0]  # get the g_rgAssets object itself
     returned_dictionary = returned_dictionary[0: -1]   # get rid of semicolon at end
     returned_dictionary = json.loads(returned_dictionary)
-    pprint(returned_dictionary)
+    # pprint(returned_dictionary)
     return returned_dictionary
 
 
@@ -60,22 +72,14 @@ def generate_spelled_items_dataframe(
     return df
 
 
-TEST_URL_1 = "https://steamcommunity.com/market/listings/440/Strange%20Specialized%20Killstreak%20Phlogistinator"
-TEST_URL_2 = "https://steamcommunity.com/market/listings/440/Strange%20Rocket%20Launcher"
-TEST_URL_3 = "https://steamcommunity.com/market/listings/440/Strange%20Crusader%27s%20Crossbow"
-HALLOWEEN_SPELL_QUERY_STRING = "?filter=halloween+spell"
-
-
 def main():
-    pages = [TEST_URL_1, TEST_URL_2, TEST_URL_3]
-    for i in range(0, len(pages)):
-        pages[i] += HALLOWEEN_SPELL_QUERY_STRING
+    spelled_items_urls = generate_spelled_items_urls()
 
     all_spelled_items_names = []
     all_spelled_items_prices = []
     all_spelled_items_validity = []
 
-    for url in pages:
+    for url in spelled_items_urls:
         page = requests.get(url)
         soup = BeautifulSoup(page.text, 'html.parser')
 
@@ -117,6 +121,7 @@ def main():
             #     print(spelled_listing_name.text)
             # for item_validity in spelled_items_validity:
             #     print(item_validity)
+        time.sleep(25)  # don't make too many requests so steam can process them
 
     df = generate_spelled_items_dataframe(all_spelled_items_prices, all_spelled_items_names, all_spelled_items_validity)
     print(df)
