@@ -4,12 +4,6 @@ import json
 from bs4 import BeautifulSoup
 import pandas as pd
 import time
-from pprint import pprint
-
-TEST_URL_1 = "https://steamcommunity.com/market/listings/440/Strange%20Specialized%20Killstreak%20Phlogistinator"
-TEST_URL_2 = "https://steamcommunity.com/market/listings/440/Strange%20Rocket%20Launcher"
-TEST_URL_3 = "https://steamcommunity.com/market/listings/440/Strange%20Crusader%27s%20Crossbow"
-HALLOWEEN_SPELL_QUERY_STRING = "?filter=halloween+spell"
 
 
 def generate_spelled_items_urls():
@@ -23,7 +17,6 @@ def generate_spelled_listing_data(item_data_script):
     returned_dictionary = re.findall("{.*};", str(returned_dictionary))[0]  # get the g_rgAssets object itself
     returned_dictionary = returned_dictionary[0: -1]   # get rid of semicolon at end
     returned_dictionary = json.loads(returned_dictionary)
-    # pprint(returned_dictionary)
     return returned_dictionary
 
 
@@ -121,14 +114,6 @@ def main():
             all_spelled_items_prices.extend(spelled_listing_prices)
             all_spelled_items_validity.extend(spelled_items_validity)
 
-            # for spelled_listing in spelled_listing_rows:
-            #     print(spelled_listing.prettify())
-            # for spelled_listing_price in spelled_listing_prices:
-            #     print(spelled_listing_price.text.strip())
-            # for spelled_listing_name in spelled_listing_names:
-            #     print(spelled_listing_name.text)
-            # for item_validity in spelled_items_validity:
-            #     print(item_validity)
         print("-", end=" ")
         if i % 25 == 0:
             print("\n")
