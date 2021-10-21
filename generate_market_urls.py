@@ -1,19 +1,29 @@
 from bs4 import BeautifulSoup
 import pandas as pd
 
-STRANGE_PREFIX_STRING = "https://steamcommunity.com/market/listings/440/Strange%20"
-HALLOWEEN_SPELL_QUERY_STRING = "?filter=halloween+spell"
-ITEM_COUNT_QUERY_STRING = "&count=100"
+STRANGE_PATH_STRING = "https://steamcommunity.com/market/listings/440/Strange%20"
 KILLSTREAK_PREFIX_STRING = "Killstreak%20"
+RENDER_PATH_STRING = "/render?"
+
+HALLOWEEN_SPELL_QUERY_STRING = "&filter=halloween+spell"
+ITEM_COUNT_QUERY_STRING = "&count=100"
+CURRENCY_QUERY_STRING = "&currency=1"
 
 
-def generate_spelled_items_urls(spelled_items_names):
+def generate_spelled_items_urls(spelled_items_names, get_api_results: bool):
     spelled_items_urls = []
     for item in spelled_items_names:
         item = item.replace(' ', "%20")
-        spelled_items_urls.append(
-            STRANGE_PREFIX_STRING + item + HALLOWEEN_SPELL_QUERY_STRING + ITEM_COUNT_QUERY_STRING
-        )
+        if get_api_results:
+            spelled_items_urls.append(
+                STRANGE_PATH_STRING + item + RENDER_PATH_STRING +
+                HALLOWEEN_SPELL_QUERY_STRING + ITEM_COUNT_QUERY_STRING + CURRENCY_QUERY_STRING
+            )
+        else:
+            spelled_items_urls.append(
+                STRANGE_PATH_STRING + item +
+                HALLOWEEN_SPELL_QUERY_STRING + ITEM_COUNT_QUERY_STRING
+            )
 
     data = {"Item URL": spelled_items_urls}
     df = pd.DataFrame(data)
@@ -23,7 +33,7 @@ def generate_spelled_items_urls(spelled_items_names):
     # print(df)
 
 
-def main():
+def generate_market_urls(get_api_results):
     soup = BeautifulSoup(open("spelled_item_pricelist.html"), 'html.parser')
     spelled_items_table = soup.find_all("div", class_="subSectionTitle")
     spelled_items_names = []
@@ -33,8 +43,7 @@ def main():
             new_entry = entry.text.replace('✔️', '')
             spelled_items_names.append(new_entry.strip())
 
-    # print(spelled_items_names)
-    generate_spelled_items_urls(spelled_items_names)
+    generate_spelled_items_urls(spelled_items_names, get_api_results)
 
 
-main()
+generate_market_urls(True)

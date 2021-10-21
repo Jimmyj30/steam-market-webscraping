@@ -87,7 +87,7 @@ def main():
             # the listings come in order from cheapest to most expensive
             listings_table = soup.find(id="searchResultsRows")
             spelled_listing_descriptions = soup.find_all(class_="item_desc_description")  # could be useful later
-            time.sleep(10)  # don't make too many requests so steam can process them
+            time.sleep(15)  # don't make too many requests so steam can process them
             i = i + 1
 
         if listings_table is not None:
