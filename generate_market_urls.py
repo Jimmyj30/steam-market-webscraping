@@ -3,7 +3,8 @@ import pandas as pd
 
 STRANGE_PATH_STRING = "https://steamcommunity.com/market/listings/440/Strange%20"
 KILLSTREAK_PREFIX_STRING = "Killstreak%20"
-RENDER_PATH_STRING = "/render?"
+RENDER_PATH_STRING = "/render"
+QUERY_STRING_SEPARATOR = "?"
 
 HALLOWEEN_SPELL_QUERY_STRING = "&filter=halloween+spell"
 ITEM_COUNT_QUERY_STRING = "&count=100"
@@ -16,12 +17,12 @@ def generate_spelled_items_urls(spelled_items_names, get_api_results: bool):
         item = item.replace(' ', "%20")
         if get_api_results:
             spelled_items_urls.append(
-                STRANGE_PATH_STRING + item + RENDER_PATH_STRING +
+                STRANGE_PATH_STRING + item + RENDER_PATH_STRING + QUERY_STRING_SEPARATOR +
                 HALLOWEEN_SPELL_QUERY_STRING + ITEM_COUNT_QUERY_STRING + CURRENCY_QUERY_STRING
             )
         else:
             spelled_items_urls.append(
-                STRANGE_PATH_STRING + item +
+                STRANGE_PATH_STRING + item + QUERY_STRING_SEPARATOR +
                 HALLOWEEN_SPELL_QUERY_STRING + ITEM_COUNT_QUERY_STRING
             )
 
@@ -33,7 +34,9 @@ def generate_spelled_items_urls(spelled_items_names, get_api_results: bool):
     # print(df)
 
 
-def generate_market_urls(get_api_results):
+# if get_api_results is true, we get spelled item data from api
+# if not, we will scrape the data using beautiful soup
+def generate_market_urls(get_api_results: bool):
     soup = BeautifulSoup(open("spelled_item_pricelist.html"), 'html.parser')
     spelled_items_table = soup.find_all("div", class_="subSectionTitle")
     spelled_items_names = []
@@ -46,4 +49,4 @@ def generate_market_urls(get_api_results):
     generate_spelled_items_urls(spelled_items_names, get_api_results)
 
 
-generate_market_urls(True)
+generate_market_urls(False)

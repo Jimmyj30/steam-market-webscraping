@@ -66,16 +66,13 @@ def generate_spelled_items_dataframe(
     return df
 
 
-def main():
+def scrape_spelled_items(scrape_full_list=True, num_scraped_items=0):
     spelled_items_urls = generate_spelled_items_urls()
 
     all_spelled_items_names = []
     all_spelled_items_prices = []
     all_spelled_items_validity = []
-
     i = 0
-    scrape_full_list = True
-    num_scraped_items = 100
 
     for url in spelled_items_urls:
         if i < num_scraped_items or scrape_full_list:
@@ -97,7 +94,6 @@ def main():
 
             # the "g_rgAssets" variable is responsible for describing the market listings
             item_data_script = ""
-            spelled_listing_data = {}
             all_webpage_javascript = soup.find_all(type="text/javascript")  # array of JS scripts in webpage
 
             for script in all_webpage_javascript:
@@ -105,9 +101,10 @@ def main():
                     item_data_script = script
                     break
 
+            # generate spelled listing data for all listings of one weapon type
             spelled_listing_data = generate_spelled_listing_data(item_data_script)
 
-            # list determining which spelled items are valid
+            # list of spelled item validity status for all listings of one weapon tye
             spelled_items_validity = get_valid_spelled_items(spelled_listing_data)
 
             all_spelled_items_names.extend(spelled_listing_names)
@@ -125,4 +122,4 @@ def main():
     df.to_csv("spelled_items_scraped.csv", index=False)
 
 
-main()
+scrape_spelled_items()

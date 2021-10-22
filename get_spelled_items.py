@@ -1,5 +1,4 @@
 import requests
-import re
 import json
 import pandas as pd
 import time
@@ -10,62 +9,74 @@ def generate_spelled_items_urls():
     return df["Item URL"]
 
 
-def get_valid_spelled_items(spelled_listing_data):
-    spelled_item_validity_array = []
-    spelled_listing_data = spelled_listing_data["440"]["2"]
-
-    for item in spelled_listing_data.values():
-        is_valid = False
-        if item["descriptions"] is not None:
-            for description in item["descriptions"]:
-                # basic way of checking if the spell is part of the item's properties and
-                # not just part of the item description
-                if (
-                    "(spell only active during event)" in description["value"] and
-                    "color" in description and
-                    "7ea9d1" in description["color"]
-                ):
-                    is_valid = True
-                    break
-                else:
-                    is_valid = False
-
-        if is_valid:
-            spelled_item_validity_array.append(True)
-        else:
-            spelled_item_validity_array.append(False)
-
-    return spelled_item_validity_array
+def find_listing_item_validity(item_descriptions):
+    for description in item_descriptions:
+        if (
+            "(spell only active during event)" in description["value"] and
+            "color" in description and
+            "7ea9d1" in description["color"]
+        ):
+            return True
+    return False
 
 
-def main():
+def generate_spelled_items_dataframe(
+        spelled_listing_prices,
+        spelled_listing_names,
+):
+    item_names = []
+    item_prices = []
+    if len(spelled_listing_prices) == len(spelled_listing_names):
+        for i in range(0, len(spelled_listing_prices)):
+            item_names.append(spelled_listing_names[i])
+            item_prices.append(str(spelled_listing_prices[i]).strip())
+
+    data = {"Item Name": item_names, "Item Price": item_prices}
+    df = pd.DataFrame(data)
+    return df
+
+
+def get_spelled_items_from_api(get_full_list=True, num_spelled_items=0):
     spelled_items_urls = generate_spelled_items_urls()
 
     all_spelled_items_names = []
     all_spelled_items_prices = []
-    all_spelled_items_validity = []
-
-    num_spelled_items = 2
-    get_full_list = False
     i = 0
 
     for url in spelled_items_urls:
         if i < num_spelled_items or get_full_list:
             listing_response = requests.get(url)
             listing_data = json.loads(listing_response.text)
-            time.sleep(2)
+            time.sleep(15)
             i = i + 1
         else:
             break
 
         if listing_data and listing_data["listinginfo"]:
             for listing_number in listing_data["listinginfo"]:
-                listing_price = listing_data["listinginfo"][listing_number]["converted_price"]
-                all_spelled_items_prices.append(listing_price/100)
+                item_id = listing_data["listinginfo"][listing_number]["asset"]["id"]
+                listing_item_assets = listing_data["assets"]["440"]["2"][item_id]
 
-    print(all_spelled_items_prices)
+                item_is_valid: bool = find_listing_item_validity(listing_item_assets["descriptions"])
+
+                if item_is_valid:
+                    listing_price = listing_data["listinginfo"][listing_number]["converted_price"]
+                    listing_fee = listing_data["listinginfo"][listing_number]["converted_fee"]
+                    total_market_price = listing_price + listing_fee
+                    all_spelled_items_prices.append(total_market_price / 100)
+                    item_name = listing_item_assets["market_name"]
+                    all_spelled_items_names.append(item_name)
+
+        print("-", end=" ")
+        if i % 25 == 0:
+            print("\n")
+    print("\n")
+
+    df = generate_spelled_items_dataframe(all_spelled_items_prices, all_spelled_items_names)
+    print(df)
+    df.to_csv("spelled_items_from_api.csv", index=False)
+
     return 0
 
 
-
-main()
+get_spelled_items_from_api()
