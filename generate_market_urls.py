@@ -25,13 +25,9 @@ def generate_spelled_items_urls(spelled_items_names, get_api_results: bool):
                 STRANGE_PATH_STRING + item + QUERY_STRING_SEPARATOR +
                 HALLOWEEN_SPELL_QUERY_STRING + ITEM_COUNT_QUERY_STRING
             )
-
     data = {"Item URL": spelled_items_urls}
     df = pd.DataFrame(data)
     df.to_csv("spelled_item_urls.csv", index=False)
-
-    # print(spelled_items_urls)
-    # print(df)
 
 
 # if get_api_results is true, we get spelled item data from api
@@ -48,5 +44,3 @@ def generate_market_urls(get_api_results: bool):
 
     generate_spelled_items_urls(spelled_items_names, get_api_results)
 
-
-generate_market_urls(False)

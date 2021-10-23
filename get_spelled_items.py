@@ -70,13 +70,10 @@ def get_spelled_items_from_api(get_full_list=True, num_spelled_items=0):
         print("-", end=" ")
         if i % 25 == 0:
             print("\n")
-    print("\n")
 
     df = generate_spelled_items_dataframe(all_spelled_items_prices, all_spelled_items_names)
-    print(df)
+    print("\n", df)
     df.to_csv("spelled_items_from_api.csv", index=False)
-
-    return 0
 
 
 get_spelled_items_from_api()

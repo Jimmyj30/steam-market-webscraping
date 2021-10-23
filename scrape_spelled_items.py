@@ -120,6 +120,3 @@ def scrape_spelled_items(scrape_full_list=True, num_scraped_items=0):
                                           all_spelled_items_validity)
     print("\n", df)
     df.to_csv("spelled_items_scraped.csv", index=False)
-
-
-scrape_spelled_items()
