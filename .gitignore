@@ -1,5 +1,5 @@
 *.DS_Store
 *.icloud
-*.csv
+.csv
 __pycache__/
 venv
